@@ -48,12 +48,17 @@ if [ ! -f "$INIT_FLAG" ]; then
             # Use the provided credentials to connect
             CONNECT_USER="${PROXMOX_USER}@${HOST}"
             
+            # Remove existing qdevice if present
+            echo "Removing any existing qdevice configuration from $HOST..."
+            sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+                "$CONNECT_USER" "pvecm qdevice remove" 2>/dev/null || echo "No existing qdevice found (this is normal)"
+            
             # Try to configure the node
             if sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
                 "$CONNECT_USER" "pvecm qdevice setup $(hostname -f)" 2>&1; then
                 echo "Successfully configured node: $HOST"
             else
-                echo "WARNING: Failed to configure node: $HOST (this may be expected if node is already configured)"
+                echo "WARNING: Failed to configure node: $HOST"
             fi
         done
     else
