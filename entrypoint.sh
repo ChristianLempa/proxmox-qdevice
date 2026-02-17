@@ -96,5 +96,9 @@ fi
 mkdir -p "$DATA_CONFIG_DIR"
 cp -a "$CONFIG_DIR"/* "$DATA_CONFIG_DIR/" 2>/dev/null || true
 
+# Start SSH server in background
+echo "Starting SSH server..."
+/usr/sbin/sshd
+
 echo "Starting corosync-qnetd..."
 exec "$@"
