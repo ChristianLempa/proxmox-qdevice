@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  proxmox-qdevice:
+    build: .
+    container_name: proxmox-qdevice
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - qdevice-data:/data
+    environment:
+      # Comma-separated list of Proxmox node IPs or hostnames
+      - PROXMOX_NODES=${PROXMOX_NODES:-}
+      # SSH credentials for automatic setup (optional)
+      - PROXMOX_USER=${PROXMOX_USER:-root}
+      - PROXMOX_PASSWORD=${PROXMOX_PASSWORD:-}
+
+volumes:
+  qdevice-data:
+    driver: local
