@@ -4,6 +4,9 @@
 # Docker volumes
 data/
 
+# Development compose file (use compose.yaml for production)
+# compose.dev.yaml is for local builds only
+
 # IDE
 .vscode/
 .idea/

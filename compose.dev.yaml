@@ -1,19 +1,17 @@
 ---
+# Example compose.yaml for local development
 services:
   proxmox-qdevice:
-    image: ghcr.io/christianlempa/proxmox-qdevice:latest
-    container_name: proxmox-qdevice
+    build: .
+    container_name: proxmox-qdevice-dev
     restart: unless-stopped
     network_mode: host
     volumes:
       - qdevice-data:/data
     environment:
-      # Comma-separated list of Proxmox node IPs or hostnames
       - PROXMOX_NODES=${PROXMOX_NODES:-}
-      # SSH credentials for automatic setup (optional)
       - PROXMOX_USER=${PROXMOX_USER:-root}
       - PROXMOX_PASSWORD=${PROXMOX_PASSWORD:-}
-      # QDevice IP address (auto-detected if not set)
       - QDEVICE_IP=${QDEVICE_IP:-}
 
 volumes:
