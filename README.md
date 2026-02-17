@@ -63,6 +63,7 @@ docker run -d \
 | `PROXMOX_NODES` | No* | Comma-separated list of Proxmox node IPs or hostnames | `192.168.1.10,192.168.1.11` |
 | `PROXMOX_USER` | No* | SSH username for Proxmox nodes | `root` |
 | `PROXMOX_PASSWORD` | No* | SSH password for Proxmox nodes | `your-password` |
+| `QDEVICE_IP` | No | IP address to use for QDevice (auto-detected if not set) | `192.168.1.100` |
 
 **Note**: If you don't provide these variables, you'll need to manually configure each Proxmox node (see Manual Setup below).
 

@@ -4,10 +4,12 @@ set -e
 INIT_FLAG="/data/.initialized"
 CONFIG_DIR="/etc/corosync/qnetd"
 DATA_CONFIG_DIR="/data/qnetd"
+NSSDB_DIR="$CONFIG_DIR/nssdb"
 
 # Restore persistent data if it exists
 if [ -d "$DATA_CONFIG_DIR" ]; then
     echo "Restoring qnetd configuration from persistent storage..."
+    mkdir -p "$CONFIG_DIR"
     cp -a "$DATA_CONFIG_DIR"/* "$CONFIG_DIR/" 2>/dev/null || true
 fi
 
@@ -15,9 +17,13 @@ fi
 if [ ! -f "$INIT_FLAG" ]; then
     echo "First time initialization..."
     
-    # Initialize corosync-qnetd
-    echo "Initializing corosync-qnetd..."
-    corosync-qnetd-certutil -i
+    # Initialize corosync-qnetd only if nssdb doesn't exist
+    if [ ! -d "$NSSDB_DIR" ]; then
+        echo "Initializing corosync-qnetd..."
+        corosync-qnetd-certutil -i
+    else
+        echo "Certificate database already exists, skipping initialization..."
+    fi
     
     # Check if PROXMOX_NODES is set
     if [ -n "$PROXMOX_NODES" ]; then
@@ -48,6 +54,14 @@ if [ ! -f "$INIT_FLAG" ]; then
             # Use the provided credentials to connect
             CONNECT_USER="${PROXMOX_USER}@${HOST}"
             
+            # Get the container's IP address or hostname
+            QDEVICE_ADDRESS="${QDEVICE_IP:-$(hostname -I | awk '{print $1}')}"
+            if [ -z "$QDEVICE_ADDRESS" ]; then
+                QDEVICE_ADDRESS="$(hostname -f)"
+            fi
+            
+            echo "Using QDevice address: $QDEVICE_ADDRESS"
+            
             # Remove existing qdevice if present
             echo "Removing any existing qdevice configuration from $HOST..."
             sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
@@ -55,7 +69,7 @@ if [ ! -f "$INIT_FLAG" ]; then
             
             # Try to configure the node
             if sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-                "$CONNECT_USER" "pvecm qdevice setup $(hostname -f)" 2>&1; then
+                "$CONNECT_USER" "pvecm qdevice setup $QDEVICE_ADDRESS" 2>&1; then
                 echo "Successfully configured node: $HOST"
             else
                 echo "WARNING: Failed to configure node: $HOST"
