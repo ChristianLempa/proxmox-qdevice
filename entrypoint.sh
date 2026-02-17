@@ -64,8 +64,8 @@ if [ ! -f "$INIT_FLAG" ]; then
             
             # Remove existing qdevice if present
             echo "Removing any existing qdevice configuration from $HOST..."
-            sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-                "$CONNECT_USER" "pvecm qdevice remove" 2>/dev/null || echo "No existing qdevice found (this is normal)"
+            timeout 10 sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+                "$CONNECT_USER" "pvecm qdevice remove" 2>&1 | grep -v "No QDevice configured" || echo "No existing qdevice found (this is normal)"
             
             # Try to configure the node
             if sshpass -p "$PROXMOX_PASSWORD" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \

@@ -29,14 +29,25 @@ services:
     network_mode: host
     volumes:
       - qdevice-data:/data
+    env_file:
+      - .env
     environment:
-      - PROXMOX_NODES=192.168.1.10,192.168.1.11
-      - PROXMOX_USER=root
-      - PROXMOX_PASSWORD=your-password
-      - QDEVICE_IP=192.168.1.100
+      - PROXMOX_NODES=${PROXMOX_NODES:-}
+      - PROXMOX_USER=${PROXMOX_USER:-root}
+      - PROXMOX_PASSWORD=${PROXMOX_PASSWORD:-}
+      - QDEVICE_IP=${QDEVICE_IP:-}
 
 volumes:
   qdevice-data:
+```
+
+Create a `.env` file in the same directory:
+
+```bash
+PROXMOX_NODES=192.168.1.10,192.168.1.11
+PROXMOX_USER=root
+PROXMOX_PASSWORD=your-password
+QDEVICE_IP=192.168.1.100
 ```
 
 Start the container:
